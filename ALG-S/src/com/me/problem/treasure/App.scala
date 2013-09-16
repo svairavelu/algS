@@ -60,9 +60,6 @@ object App extends App {
         nPath ++= path
         nPath += current
 
-        nPath foreach print
-        println
-
         var keys = ks + ((current.kToOpen) -> (ks(current.kToOpen) - 1))
         var nkcs = kcs + (current.kToOpen -> (kcs(current.kToOpen) - current))
 
