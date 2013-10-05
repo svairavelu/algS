@@ -1,6 +1,7 @@
 package com.me.problem.treasure
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Queue
 
 object App extends App {
 
@@ -30,8 +31,6 @@ object App extends App {
 
       }
 
-      var kcs: Map[Int, Set[C]] = Map()
-
       val clb: ListBuffer[C] = new ListBuffer()
       for (i <- 1 to n) {
         val l = readLine
@@ -39,11 +38,6 @@ object App extends App {
         val kToOpen = (xs(0) toInt)
         val c = new C(i, kToOpen)
         clb += c
-
-        kcs.get(kToOpen) match {
-          case None => kcs += (kToOpen -> Set(c))
-          case Some(s) => kcs += (kToOpen -> (s + c))
-        }
 
         val kn = xs(1).toInt
         for (j <- 0 until kn) {
@@ -54,81 +48,138 @@ object App extends App {
 
       val cl = clb.toList
 
-      def process(current: C, path: List[C], ks: Map[Int, Int], kcs: Map[Int, Set[C]]): (Map[Int, Int], List[C], Map[Int, Set[C]]) = {
-
-        val nPath: ListBuffer[C] = new ListBuffer
-        nPath ++= path
-        nPath += current
-
-        var keys = ks + ((current.kToOpen) -> (ks(current.kToOpen) - 1))
-        var nkcs = kcs + (current.kToOpen -> (kcs(current.kToOpen) - current))
-
-        current.keys.foreach(k => {
-          keys.get(k) match {
-            case None => keys += k -> 1
-            case Some(n) => keys += k -> (n + 1)
+      def rule1(keys: Map[Int, Int], chests: List[C]): Boolean = {
+        var nkeys = keys
+        var cmap = Map.empty[Int, Int]
+        chests foreach (c => {
+          cmap get (c.tp) match {
+            case Some(count) => cmap += (c.tp) -> (count + 1)
+            case None => cmap += (c.tp) -> 1
           }
+
+          c.ks foreach (k => {
+            nkeys get (k) match {
+              case Some(count) => nkeys += k -> (count + 1)
+              case None => nkeys += k -> 1
+            }
+          })
         })
 
-        if (nPath.size == n) {
-          (keys, nPath.toList, nkcs)
-        } else {
-          var usableKs = keys.filter(x => {
-            val (k, n) = x
-            n > 0 && nkcs.contains(k) && nkcs(k).size > 0
-          }).map(_._1).toSet
-          if (usableKs.size == 0) {
-            (ks, path, kcs)
-          } else {
-            var found = false
-            var pathC = nPath.toList
-            for (c <- cl if !pathC.contains(c) && usableKs.contains(c.kToOpen) && !found) {
-              val (pks, ppath, pkcs) = process(c, pathC, keys, nkcs)
-              pathC = ppath
-              keys = pks
-              nkcs = pkcs
+        var valid = true
+        for ((k, count) <- nkeys if valid) {
+          cmap get (k) match {
+            case Some(ccount) => valid = count >= ccount
+            case None =>
+          }
+        }
+        valid
+      }
 
-              if (ppath.size == n) {
-                found = true
+      val totalCount = cl.size
+      def find(cl: List[C], path: List[C], keys: Map[Int, Int]): List[C] = {
+
+        cl foreach (_.visited = false)
+
+        def rule2(chests: List[C], keys: Map[Int, Int]) = {
+          val queueToProcess = Queue.empty[C]
+
+          def check(c: C): Boolean = {
+            c.visited = true
+
+            for (xc <- cl if !xc.visited) {
+              if (c.ks.contains(xc.tp)) {
+                queueToProcess.enqueue(xc)
               }
-              usableKs = keys.filter(x => {
-                val (k, n) = x
-                n > 0 && nkcs.contains(k) && nkcs(k).size > 0
-              }).map(_._1).toSet
             }
 
-            val possible = usableKs.size > 0
+            if (queueToProcess.size == 0) {
+              val notProcessedCount = (0 /: cl)(
+                (count, c) => {
+                  if (c.visited) {
+                    count
+                  } else {
+                    count + 1
+                  }
+                })
 
-            if (found || possible) {
-              (keys, pathC, nkcs)
+              if (notProcessedCount == 0) {
+                true
+              } else {
+                false
+              }
             } else {
-              (ks, path, kcs)
+              val nextC = queueToProcess.dequeue
+              check(nextC)
+            }
+          }
+
+          var valid = false
+
+          for (c <- chests if !valid) {
+            keys get (c.tp) match {
+              case Some(count) => if (count > 0) valid = check(c)
+              case None =>
+            }
+          }
+
+          valid
+        }
+
+        def blackbox(start: C, cpath: List[C], ks: Map[Int, Int]): List[C] = {
+          val ncpath = start :: cpath
+
+          if (ncpath.size == totalCount) {
+            List(start)
+          } else {
+            var nks = ks
+            start.ks foreach (k => {
+              nks get (k) match {
+                case Some(count) => nks += k -> (count + 1)
+                case None => nks += k -> 1
+              }
+            })
+
+            nks += (start.tp) -> (nks(start.tp) - 1)
+            val ncl = cl.filter(!ncpath.contains(_))
+            val rt = find(ncl, ncpath, nks)
+            rt match {
+              case Nil => Nil
+              case list => start :: list
             }
           }
         }
 
-      }
+        if (rule1(keys, cl) && rule2(cl, keys)) {
+          var found = false
+          var p = List.empty[C]
+          for (c <- cl if !found) {
+            keys get (c.tp) match {
+              case Some(count) =>
+                if (count > 0) {
+                  p = blackbox(c, path, keys)
+                  p match {
+                    case Nil =>
+                    case p => found = true
+                  }
+                }
+              case None =>
+            }
 
-      var found = false
-      var path: List[C] = Nil
+          }
 
-      for (c <- cl if !found && keys.contains(c.kToOpen) && !path.contains(c)) {
-        val (ks, ph, pkcs) = process(c, path, keys, kcs)
-
-        path = ph
-        keys = ks
-        kcs = pkcs
-
-        if (path.size == n) {
-          found = true
+          if (found) {
+            p
+          } else {
+            Nil
+          }
+        } else {
+          Nil
         }
       }
-      print(s"Case #$count:")
-      if (!found) {
-        println(" IMPOSSIBLE")
-      } else {
-        path.foreach(c => print(s" $c"))
-        println
+
+      find(cl, List.empty[C], keys) match {
+        case Nil => println(s"Case #$count: IMPOSSIBLE")
+        case path => println(s"Case #$count: ${path.mkString(" ")}")
       }
 
       count += 1
@@ -139,14 +190,13 @@ object App extends App {
 
 }
 
-class C(val label: Int, val kToOpen: Int) {
+class C(val label: Int, val tp: Int) {
 
-  private var ks: List[Int] = List()
+  var ks = List.empty[Int]
+
   def moreK(k: Int) = ks = k :: ks
 
-  def keys = ks
-
-  var locked = true
+  var visited = false
 
   override def equals(other: Any) = other match {
     case that: C => this.label == that.label
