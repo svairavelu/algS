@@ -37,6 +37,9 @@ object App extends App {
     count
   }
   
+  
+  
+  
   var tl = readLine
   if(tl != null) {
     val t = tl toInt
