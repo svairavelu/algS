@@ -22,7 +22,7 @@ public class Main {
 			Arrays.sort(changes);
 			
 //			boolean rt = findCoins(coins, m, changes, 0);
-			Iterable<Integer> coins = findCoins0(m, changes);
+			Iterable<Integer> coins = findCoins(m, changes);
 			if(coins != null) {
 				Iterator<Integer> iter = coins.iterator();
 				System.out.print(iter.next());
@@ -82,7 +82,14 @@ public class Main {
 			} else if (left < 0 || pos == changes.length - 1){
 				int nxtPos = pos + 1;
 				if(nxtPos >= changes.length) {
-					break;
+					int idx = stack.firstElement();
+					stack.clear();
+					if(idx == changes.length - 1) {
+						break;
+					} else {
+						stack.push(idx + 1);
+						left = capacity - changes[idx + 1];
+					}
 				} else {
 					int nxtVal = changes[nxtPos];
 					int idx = 0;
