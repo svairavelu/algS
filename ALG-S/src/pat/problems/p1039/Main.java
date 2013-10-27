@@ -23,6 +23,7 @@ public class Main {
 				int no = Integer.valueOf(line[0]);
 				int nx = Integer.valueOf(line[1]);
 				if(nx == 0) {
+					//can't assume that every course has at least 1 students; 
 					continue;
 				}
 				String[] ss = br.readLine().split("\\s+");
