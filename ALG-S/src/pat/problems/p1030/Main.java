@@ -1,4 +1,4 @@
-package pat.probolems.p1030;
+package pat.problems.p1030;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
