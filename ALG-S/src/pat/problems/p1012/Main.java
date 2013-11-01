@@ -9,16 +9,17 @@ import java.util.Comparator;
 public class Main {
 
 	public static void main(String[] args) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-			String[] cs = {"A", "C", "M", "E"};
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(
+				System.in))) {
+			String[] cs = { "A", "C", "M", "E" };
 			Main processor = new Main();
 			String[] line = br.readLine().split("\\s+");
 			processor.init(Integer.valueOf(line[0]), br);
 			int m = Integer.valueOf(line[1]);
-			for(int i = 0; i < m; i++) {
+			for (int i = 0; i < m; i++) {
 				String id = br.readLine();
 				ST st = processor.find(id);
-				if(st != null) {
+				if (st != null) {
 					int rank = st.rank();
 					int c = st.best();
 					System.out.printf("%d %s\n", rank, cs[c]);
@@ -38,7 +39,7 @@ public class Main {
 			return o1.id.compareTo(o2.id);
 		}
 	};
-	
+
 	public void init(int n, BufferedReader br) throws IOException {
 		sts = new ST[n];
 
@@ -48,41 +49,65 @@ public class Main {
 		}
 
 		for (int k = 0; k < 4; k++) {
-			for (int i = 1; i < n; i++) {
-				ST sti = sts[i];
-				int j;
-				for (j = i; j > 0 && sts[j - 1].scores[k] < sti.scores[k]; j--) {
-					sts[j] = sts[j - 1];
-				}
-				sts[j] = sti;
-			}
-			
-			sts[0].rank[k] = 1;
-			for(int i = 1; i < n; i++) {
-				if(sts[i].scores[k] == sts[i - 1].scores[k]) {
-					sts[i].rank[k] = sts[i - 1].rank[k];
-				} else {
-					sts[i].rank[k] = i + 1;
-				}
-			}
-			
+			rank1(n, k);
 		}
 
 		Arrays.sort(sts, comparator);
 	}
-	
+
+	private void rank1(int n, int k) {
+		int[] count = new int[102];
+		for(int i = 0; i < n; i++) {
+			ST st = sts[i];
+			count[st.scores[k]] += 1;
+		}
+		
+//		for(int i = 0; i < 100; i++) {
+//			count[i + 1] += count[i];
+//		}
+		
+		for(int i = 101; i > 0; i--) {
+			count[i - 1] += count[i];
+		}
+		
+		for(int i = 0; i < n; i++) {
+			ST st = sts[i];
+			st.rank[k] = count[st.scores[k] + 1] + 1;
+		}
+	}
+
+	private void rank(int n, int k) {
+		for (int i = 1; i < n; i++) {
+			ST sti = sts[i];
+			int j;
+			for (j = i; j > 0 && sts[j - 1].scores[k] < sti.scores[k]; j--) {
+				sts[j] = sts[j - 1];
+			}
+			sts[j] = sti;
+		}
+
+		sts[0].rank[k] = 1;
+		for (int i = 1; i < n; i++) {
+			if (sts[i].scores[k] == sts[i - 1].scores[k]) {
+				sts[i].rank[k] = sts[i - 1].rank[k];
+			} else {
+				sts[i].rank[k] = i + 1;
+			}
+		}
+	}
+
 	ST dummy = new ST();
 
 	public ST find(String id) {
 		dummy.id = id;
 		int index = Arrays.binarySearch(sts, dummy, comparator);
-		if(index >= 0) {
+		if (index >= 0) {
 			return sts[index];
 		} else {
 			return null;
 		}
 	}
-	
+
 	static class ST {
 		String id;
 		int[] scores = new int[4];
@@ -90,6 +115,7 @@ public class Main {
 
 		int bestRank = Integer.MAX_VALUE;
 		int bestRankIndex = -1;
+
 		public ST(String line) {
 			String[] s = line.split("\\s+");
 			this.id = s[0];
@@ -101,21 +127,21 @@ public class Main {
 				rank[i] = Integer.MAX_VALUE;
 			}
 		}
-		
+
 		public ST() {
-			
+
 		}
-		
+
 		public int rank() {
-			for(int i = 0; i < rank.length; i++) {
-				if(rank[i] < bestRank) {
+			for (int i = 0; i < rank.length; i++) {
+				if (rank[i] < bestRank) {
 					bestRank = rank[i];
 					bestRankIndex = i;
 				}
 			}
 			return bestRank;
 		}
-		
+
 		public int best() {
 			return bestRankIndex;
 		}
@@ -125,7 +151,6 @@ public class Main {
 			return "ST [id=" + id + ", scores=" + Arrays.toString(scores)
 					+ ", rank=" + Arrays.toString(rank) + "]";
 		}
-		
-		
+
 	}
 }

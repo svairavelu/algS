@@ -25,32 +25,34 @@ public class Main {
 			int n = Integer.valueOf(fl[0]);
 			int m = Integer.valueOf(fl[1]);
 			
-			FM[] fms = new FM[n];
 			
 			if(m == 0) {
 				System.out.println(1);
+				br.close();
 				return;
 			}
+
+			FM[] fms = new FM[n + 1];
 			
 			for(int i = 0; i < m; i++) {
-				String[] line = br.readLine().split(" ");
+				String[] line = br.readLine().split("\\s+");
 				String label = line[0];
-				int index = Integer.valueOf(label) - 1;
+				int index = Integer.valueOf(label);
 				FM fm = new FM();
 				int k = Integer.valueOf(line[1]);
+				fm.hasC = k != 0;
+				fms[index] = fm;				
 				for(int j = 0; j < k; j++) {
-					fm.addChild(Integer.valueOf(line[j + 2]) - 1);
+					fm.addChild(Integer.valueOf(line[j + 2]));
 				}
-				fm.hasC = true;
-				fms[index] = fm;
 			}
 			
-			int maxLevel = process(fms[0], fms, 0);
+			int maxLevel = process(fms[1], fms, 0);
 			
 			int[] levelCount = new int[maxLevel + 1];
 			for(int i = 0; i <= maxLevel; i++) {
 				int count = 0;
-				for(int j = 0; j < n; j++) {
+				for(int j = 0; j < n + 1; j++) {
 					if(fms[j] != null && fms[j].level == i && fms[j].hasC == false) {
 						count += 1;
 					}
@@ -105,7 +107,7 @@ public class Main {
 		}
 		boolean hasC = false;
 		
-		List<Integer> children = new ArrayList<Integer>();
+		List<Integer> children = new ArrayList<>();
 		
 		public void addChild(int c) {
 			children.add(c);
