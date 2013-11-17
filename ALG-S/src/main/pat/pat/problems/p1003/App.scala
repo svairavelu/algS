@@ -1,6 +1,6 @@
 package pat.problems.p1003
 
-object Main extends App {
+object App extends App {
 
   val firstLine = readLine
   val nmc1c2 = firstLine.split(" ")

@@ -1,6 +1,6 @@
 package pat.problems.p1004
 
-object Main extends App {
+object App extends App {
 
   val firstLine = readLine
   val nm = firstLine.split(" ").map(_ toInt)
