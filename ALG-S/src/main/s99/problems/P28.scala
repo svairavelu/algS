@@ -1,7 +1,7 @@
 /**
  *
  */
-package problems.p28
+package problems
 
 /**
  * @author Blues

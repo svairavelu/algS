@@ -3,6 +3,7 @@ package problems.p28
 import org.scalatest.FunSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import problems.Solution
 
 
 @RunWith(classOf[JUnitRunner])
