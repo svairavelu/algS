@@ -1,28 +1,19 @@
 package problems
 
-class S99Int(val start: Int) {
+class P31(val start: Int) {
 
-  import S99Int._
+  import P31._
 
   def isPrime: Boolean =
     (start > 1) && (primes takeWhile { _ <= Math.sqrt(start) } forall { start % _ != 0 })
 
 }
 
-object S99Int {
-
-  private implicit def convert(x: Int) = new S99Int(x)
-
-  val primes = Stream.cons(2, Stream.from(3, 2) filter { _.isPrime })
-
-}
-
 object P31 {
-  import S99Int._
-  def isPrime(x: Int) = {
-	  val took = primes.takeWhile(_ <= x).last
-	  took == x
-  }
+
+  implicit def wrap(x: Int) = new P31(x)
+  
+  val primes = Stream.cons(2, Stream.from(3, 2) filter { _.isPrime })
 }
 // Readers interested in more sophisticated (and more efficient) primality tests
 // are invited to read http://primes.utm.edu/prove/index.html .  Implementation

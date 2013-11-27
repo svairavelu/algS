@@ -7,15 +7,15 @@ import problems.P31
 
 @RunWith(classOf[JUnitRunner])
 class SolutionSuite extends FunSuite {
-	
+
   import P31._
-  
+
   test("A prime number") {
-	  assert(isPrime(7))
+    assert(7.isPrime)
   }
-  
+
   test("Not a prime number") {
-    assert(isPrime(18) == false)
+    assert(18.isPrime == false)
   }
-  
+
 }
