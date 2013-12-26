@@ -18,4 +18,9 @@ object P41 {
   def main(args: Array[String]) {
      printGoldbachList(9 to 20)
   }
+  
+  val op: Option[Int] = None
+  val po: Option[Int] = Some(10)
+  op.map(x => println(x)).getOrElse(println("None"))
+  po.map(x => println(x)).getOrElse(println("None"))
 }

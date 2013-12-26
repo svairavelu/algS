@@ -45,6 +45,20 @@ abstract class GraphBase[T, U] {
   def toAdjacentForm: List[(T, List[(T, U)])] =
     nodes.values.toList.map((n) => (n.value, n.adj.map((e) =>
       (edgeTarget(e, n).get.value, e.value))))
+
+  def findPaths(source: T, dest: T): List[List[T]] = {
+
+    def findPathsR(curNode: Node, curPath: List[T]): List[List[T]] = {
+      if (curNode.value == dest) List(curPath)
+      else curNode.adj.map(edgeTarget(_, curNode).get).filter(n => !curPath.contains(n.value)).flatMap(n => findPathsR(n, n.value :: curPath))
+    }
+    findPathsR(nodes(source), List(source)).map(_.reverse)
+  }
+  
+  def findCycles(source: T): List[List[T]] = {
+    val n = nodes(source)
+    n.adj.map(edgeTarget(_, n).get.value).flatMap(findPaths(_, source)).map(source :: _).filter(_.lengthCompare(3) > 0)
+  }
 }
 
 class Graph[T, U] extends GraphBase[T, U] {
