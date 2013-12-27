@@ -1,17 +1,6 @@
 package com.me.problems.leetcode
 
-object Solution {
-
-  def main(args: Array[String]): Unit = {
-    //    println(evalRPN(List("2", "1", "+", "3", "*")))
-    //    println(evalRPN(List("4", "13", "5", "/", "+")))
-
-    //(-4,-4),(-8,-582),(-3,3),(-9,-651),(9,591)
-//    val points = Array((0,-12),(5,2),(2,5),(0,-5),(1,5),(2,-2),(5,-4),(3,4),(-2,4),(-1,4),(0,-5),(0,-8),(-2,-1),(0,-11),(0,-9)).map(Point.fromTuple(_))
-//    println(maxPoints(points))
-    
-    println(reverseBetween(List(1, 2, 3, 4, 5), 1, 4))
-  }
+object Solution extends App {
 
   def evalRPN(expr: List[String]): Int = {
 
@@ -99,4 +88,25 @@ object Solution {
     
     fr(Nil, Nil, list, m - 1, n)
   }
+  
+  def jump(xs: List[Int]): Int = xs match {
+    case Nil => 0
+    case x :: tail if x >= tail.length => 1
+    case x :: tail => 
+      var i = 1
+      var min = xs.length
+      
+      var list = tail
+      while(i <= x) {
+        val num = 1 + jump(list)
+        if(min > num) {
+          min = num
+        }
+        list = list.tail
+        i += 1
+      }
+      min
+  }
+  
+  println(jump(List(2, 3, 1, 1, 4)))
 }
