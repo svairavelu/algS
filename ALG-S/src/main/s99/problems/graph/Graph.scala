@@ -54,7 +54,7 @@ abstract class GraphBase[T, U] {
     }
     findPathsR(nodes(source), List(source)).map(_.reverse)
   }
-  
+
   def findCycles(source: T): List[List[T]] = {
     val n = nodes(source)
     n.adj.map(edgeTarget(_, n).get.value).flatMap(findPaths(_, source)).map(source :: _).filter(_.lengthCompare(3) > 0)
@@ -80,6 +80,24 @@ class Graph[T, U] extends GraphBase[T, U] {
   }
 
   val edgeSep: String = "-"
+
+  // edgeConnectsToGraph is needed for P84, so it's not an internal function.
+  def edgeConnectsToGraph[T, U](e: Edge, nodes: List[Node]): Boolean =
+    !(nodes.contains(e.n1) == nodes.contains(e.n2)) // xor
+  def spanningTrees = {
+    def spanningTreesR(graphEdges: List[Edge], graphNodes: List[Node], treeEdges: List[Edge]): List[Graph[T, U]] = {
+      if (graphNodes == Nil) List(Graph.termLabel(nodes.keys.toList, treeEdges.map(_.toTuple)))
+      else if (graphEdges == Nil) Nil
+      else graphEdges.filter(edgeConnectsToGraph(_, graphNodes)) flatMap { ge =>
+        spanningTreesR(graphEdges.filterNot(_ == ge),
+          graphNodes.filter(edgeTarget(ge, _) == None),
+          ge :: treeEdges)
+      }
+    }
+    spanningTreesR(edges, nodes.values.toList.tail, Nil).removeDuplicates
+  }
+  def isTree: Boolean = spanningTrees.lengthCompare(1) == 0
+  def isConnected: Boolean = spanningTrees.lengthCompare(0) > 0
 }
 
 class Digraph[T, U] extends GraphBase[T, U] {

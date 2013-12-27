@@ -7,8 +7,10 @@ object Solution {
     //    println(evalRPN(List("4", "13", "5", "/", "+")))
 
     //(-4,-4),(-8,-582),(-3,3),(-9,-651),(9,591)
-    val points = Array((0,-12),(5,2),(2,5),(0,-5),(1,5),(2,-2),(5,-4),(3,4),(-2,4),(-1,4),(0,-5),(0,-8),(-2,-1),(0,-11),(0,-9)).map(Point.fromTuple(_))
-    println(maxPoints(points))
+//    val points = Array((0,-12),(5,2),(2,5),(0,-5),(1,5),(2,-2),(5,-4),(3,4),(-2,4),(-1,4),(0,-5),(0,-8),(-2,-1),(0,-11),(0,-9)).map(Point.fromTuple(_))
+//    println(maxPoints(points))
+    
+    println(reverseBetween(List(1, 2, 3, 4, 5), 1, 4))
   }
 
   def evalRPN(expr: List[String]): Int = {
@@ -80,5 +82,21 @@ object Solution {
         case (m, l) => math.max(m, l.nodes)
       }
     }
+  }
+  
+  def reverseBetween[T](list: List[T], m: Int, n: Int): List[T] =  {
+    def fr(pre: List[T], mid: List[T], list: List[T], m: Int, n: Int): List[T] = (m, n) match {
+      case (0, 0) => pre ::: mid ::: list
+      case (0, y) =>
+        val h = list.head
+        val tail = list.tail
+        fr(pre, h :: mid, tail, 0, y - 1)
+      case (x, y) =>
+        val h = list.head
+        val tail = list.tail
+        fr(pre :+ h, mid, tail, x - 1, y - 1)
+    }
+    
+    fr(Nil, Nil, list, m - 1, n)
   }
 }

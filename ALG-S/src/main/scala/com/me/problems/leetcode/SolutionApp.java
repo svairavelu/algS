@@ -6,26 +6,6 @@ import java.util.List;
 
 public class SolutionApp {
 
-	public static void main(String[] args) {
-
-		SolutionApp app = new SolutionApp();
-		// System.out.println(app
-		// .evalRPN(new String[] { "4", "13", "5", "/", "+" }));
-		// (0,0),(1,1),(1,-1)
-//		Point a = new Point(0, 0);
-//		Point b = new Point(1, 1);
-//		Point c = new Point(1, -1);
-//		System.out.println(app.maxPoints(new Point[] { a, b, c }));
-		
-		ListNode head = new ListNode(1);
-		head.next = new ListNode(2);
-		head.next.next = new ListNode(3);
-		head.next.next.next = new ListNode(4);
-		
-		head = app.sortList(head);
-		System.out.println(head);
-	}
-
 	public int fEvalRPN(int[] pre, String[] expr) {
 		if (expr.length == 0) {
 			return Integer.valueOf(pre[0]);
@@ -135,9 +115,9 @@ public class SolutionApp {
 			val = x;
 			next = null;
 		}
-		
+
 		public String toString() {
-			if(next == null) {
+			if (next == null) {
 				return String.valueOf(val);
 			} else {
 				return String.valueOf(val) + "->" + next.toString();
@@ -145,23 +125,8 @@ public class SolutionApp {
 		}
 	}
 
-	private ListNode[] toArray(ListNode head) {
-		int n = 100;
-		int idx = 0;
-		ListNode[] nodes = new ListNode[n];
-		ListNode tmp = head;
-		while(tmp != null) {
-			nodes[idx++] = tmp;
-			tmp = tmp.next;
-			if(idx >= nodes.length) {
-				nodes = Arrays.copyOf(nodes, nodes.length + n);
-			}
-		}
-		return Arrays.copyOf(nodes, idx);
-	}
-	
 	public ListNode sortList(ListNode head) {
-		if(head == null) {
+		if (head == null) {
 			return null;
 		}
 		ListNode[] nodes = toArray(head);
@@ -169,28 +134,29 @@ public class SolutionApp {
 		mergeSort(nodes, backup, 0, nodes.length);
 		return nodes[0];
 	}
-	
-	private void mergeSort(ListNode[] nodes, ListNode[] backup, int start, int end) {
-		if(end - start == 1) {
+
+	private void mergeSort(ListNode[] nodes, ListNode[] backup, int start,
+			int end) {
+		if (end - start == 1) {
 			nodes[start].next = null;
 			return;
 		}
-		
+
 		int dist = end - start;
 		int mid = dist >> 1;
-		if(dist % 2 == 1) {
+		if (dist % 2 == 1) {
 			mid += 1;
 		}
 		mid += start;
-//		int mid = (end - start) / 2;
-		
+		// int mid = (end - start) / 2;
+
 		mergeSort(nodes, backup, start, mid);
 		mergeSort(nodes, backup, mid, end);
 		ListNode a = nodes[start];
 		ListNode b = nodes[mid];
 		int idx = start;
-		while(a != null && b != null) {
-			if(a.val <= b.val) {
+		while (a != null && b != null) {
+			if (a.val <= b.val) {
 				backup[idx++] = a;
 				a = a.next;
 			} else {
@@ -198,19 +164,19 @@ public class SolutionApp {
 				b = b.next;
 			}
 		}
-		
-		while(a != null) {
+
+		while (a != null) {
 			backup[idx++] = a;
 			a = a.next;
 		}
-		
-		while(b != null) {
+
+		while (b != null) {
 			backup[idx++] = b;
 			b = b.next;
 		}
-		
+
 		nodes[start] = backup[start];
-		for(int i = start + 1; i < end; i++) {
+		for (int i = start + 1; i < end; i++) {
 			ListNode x = backup[i - 1];
 			ListNode y = backup[i];
 			x.next = y;
@@ -218,4 +184,146 @@ public class SolutionApp {
 		}
 		nodes[end - 1].next = null;
 	}
+
+	static class ListNodeEnd extends ListNode {
+
+		ListNodeEnd() {
+			super(-1);
+		}
+	}
+
+	private ListNode link(ListNode a, ListNode b) {
+		ListNode tmp = a;
+		while (tmp.next != null) {
+			tmp = tmp.next;
+		}
+		tmp.next = b;
+		return a;
+	}
+
+	private ListNode removeEnd(ListNode list) {
+		ListNode p = list;
+		ListNode tmp = p.next;
+		while (tmp.next != null) {
+			p = tmp;
+			tmp = tmp.next;
+		}
+		p.next = null;
+		return list;
+	}
+
+	private ListNode reverseBetween(ListNode pre, ListNode mid, ListNode list,
+			int m, int n) {
+		if (m == 0 && n == 0) {
+			mid = removeEnd(mid);
+			link(pre, mid);
+			link(pre, list);
+			return pre;
+		}
+
+		if (m == 0 && n > 0) {
+			ListNode node = list;
+			list = list.next;
+			node.next = mid;
+			mid = node;
+			return reverseBetween(pre, mid, list, m, n - 1);
+		}
+
+		ListNode node = list;
+		list = list.next;
+		node.next = null;
+		pre = link(pre, node);
+		return reverseBetween(pre, mid, list, m - 1, n - 1);
+
+	}
+
+	public ListNode reverseBetween(ListNode head, int m, int n) {
+		ListNode list = reverseBetween(new ListNodeEnd(), new ListNodeEnd(),
+				head, m - 1, n);
+		return list.next;
+	}
+	
+	public static ListNode fromString(String str) {
+		String[] nodes = str.split("->");
+		ListNode head = new ListNode(Integer.valueOf(nodes[0]));
+		ListNode tmp = head;
+		for(int i = 1; i < nodes.length; i++) {
+			int x = Integer.valueOf(nodes[i]);
+			ListNode node = new ListNode(x);
+			tmp.next = node;
+			tmp = node;
+		}
+		
+		return head;
+	}
+	
+	public ListNode insertionSortList(ListNode head) {
+		if(head == null) {
+			return null;
+		}
+		ListNode[] nodes = toArray(head);
+		
+		for(int i = 1; i < nodes.length; i++) {
+			ListNode a = nodes[i];
+			int  j = i;
+			for(; j > 0; j--) {
+				ListNode b = nodes[j - 1];
+				if(a.val >= b.val) {
+					break;
+				} else {
+					nodes[j] = nodes[j - 1];
+				}
+			}
+			nodes[j] = a;
+		}
+		
+		for(int i = 1; i < nodes.length; i++) {
+			ListNode a = nodes[i - 1];
+			ListNode b = nodes[i];
+			b.next = null;
+			a.next = b;
+		}
+		
+		return nodes[0];
+	}
+	
+	private ListNode[] toArray(ListNode head) {
+		int n = 100;
+		int idx = 0;
+		ListNode[] nodes = new ListNode[n];
+		ListNode tmp = head;
+		while (tmp != null) {
+			nodes[idx++] = tmp;
+			tmp = tmp.next;
+			if (idx >= nodes.length) {
+				nodes = Arrays.copyOf(nodes, nodes.length + n);
+			}
+		}
+		return Arrays.copyOf(nodes, idx);
+	}
+	public static void main(String[] args) {
+
+		SolutionApp app = new SolutionApp();
+		// System.out.println(app
+		// .evalRPN(new String[] { "4", "13", "5", "/", "+" }));
+		// (0,0),(1,1),(1,-1)
+		// Point a = new Point(0, 0);
+		// Point b = new Point(1, 1);
+		// Point c = new Point(1, -1);
+		// System.out.println(app.maxPoints(new Point[] { a, b, c }));
+
+//		ListNode head = new ListNode(1);
+//		head.next = new ListNode(2);
+//		head.next.next = new ListNode(3);
+//		head.next.next.next = new ListNode(4);
+//
+//		head = app.sortList(head);
+//		System.out.println(head);
+		
+//		ListNode head = fromString("1->2->3->4->5");
+		ListNode head = fromString("2->1");
+//		System.out.println(app.reverseBetween(head, 1, 4));
+		System.out.println(app.insertionSortList(head));
+	}
+
 }

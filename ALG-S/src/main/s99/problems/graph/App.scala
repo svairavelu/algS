@@ -17,6 +17,13 @@ object App extends App {
   println(Digraph.fromStringLabel("[p>q/9, m>q/7, k, p>m/5]").findPaths("p", "k"))
   
   println(Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").findCycles("f"))
+  
+  println(Graph.fromStringLabel("[a-b/1, b-c/2, a-c/3]").spanningTrees)
+  
+  println(Graph.term(List('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
+           List(('a', 'b'), ('a', 'd'), ('b', 'c'), ('b', 'e'),
+                ('c', 'e'), ('d', 'e'), ('d', 'f'), ('d', 'g'),
+                ('e', 'h'), ('f', 'g'), ('g', 'h'))).spanningTrees)
 }
 //
 //abstract class Factory {
