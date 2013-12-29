@@ -2,7 +2,11 @@ package com.me.problems.leetcode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SolutionApp {
 
@@ -295,26 +299,40 @@ public class SolutionApp {
 			if (x == 0) {
 				// no need to switch
 				i += 1;
-			} else if (y == 2) {
+				continue;
+			}
+			if (y == 2) {
 				// no need to switch
 				j -= 1;
-			} else if (x == 2 && y == 0) {
+				continue;
+			}
+
+			if (x == 2 && y == 0) {
 				// switch x & y
 				colors[i] = y;
 				colors[j] = x;
 				i += 1;
 				j -= 1;
-			} else if (x == 1 && y == 0) {
+				continue;
+			}
+
+			if (x == 2) {
 				// switch x & y, only move i;
 				colors[i] = y;
 				colors[j] = x;
-				i += 1;
-			} else if (x == 2 && y == 1) {
+				j -= 1;
+				continue;
+			}
+
+			if (y == 0) {
 				// switch x & y, move j
 				colors[i] = y;
 				colors[j] = x;
-				j -= 1;
-			} else if (x == 1 && y == 1) {
+				i += 1;
+				continue;
+			}
+
+			if (x == 1 && y == 1) {
 				int k = i;
 				while (k < j && colors[k] == 1) {
 					k += 1;
@@ -377,36 +395,530 @@ public class SolutionApp {
 	}
 
 	public String strStr(String haystack, String needle) {
-		if(needle == null || needle.length() == 0) {
+		if (needle == null || needle.length() == 0) {
 			return haystack;
 		}
-		
+
 		char[] xs = haystack.toCharArray();
 		char[] ys = needle.toCharArray();
-		
-		for(int i = 0; i < xs.length - ys.length + 1; i++) {
+
+		for (int i = 0; i < xs.length - ys.length + 1; i++) {
 			boolean found = true;
-			for(int j = 0; j < ys.length; j++) {
-				if(xs[i + j] != ys[j]) {
+			for (int j = 0; j < ys.length; j++) {
+				if (xs[i + j] != ys[j]) {
 					found = false;
 					break;
 				}
 			}
-			if(found) {
+			if (found) {
 				return new String(Arrays.copyOfRange(xs, i, xs.length));
 			}
 		}
 		return null;
 	}
 
+	class Range {
+		final int s, e;
+
+		Range(int s, int e) {
+			this.s = s;
+			this.e = e;
+		}
+	}
+
+	public Range searchRange(int[] xs, int target, int s, int e) {
+		if (xs[s] == target && xs[e] == target) {
+			return new Range(s, e);
+		}
+
+		if (s == e) {
+			return null;
+		}
+
+		int mid = (e - s) / 2 + s;
+		if (xs[mid] < target) {
+			return searchRange(xs, target, mid + 1, e);
+		}
+
+		if (xs[mid] > target) {
+			return searchRange(xs, target, s, mid);
+		}
+
+		Range left = searchRange(xs, target, s, mid);
+		// left can't be null, at least has mid
+		Range right = searchRange(xs, target, mid + 1, e);
+		if (right != null) {
+			return new Range(left.s, right.e);
+		} else {
+			return left;
+		}
+	}
+
+	public int[] searchRange(int[] xs, int target) {
+		Range range = searchRange(xs, target, 0, xs.length - 1);
+		if (range != null) {
+			return new int[] { range.s, range.e };
+		} else {
+			return new int[] { -1, -1 };
+		}
+	}
+
+	private int longestValidParentheses(char[] xs, int idx, int max, int num,
+			int level) {
+		if (idx == xs.length) {
+			return max;
+		}
+
+		char x = xs[idx];
+		if (x == '(') {
+			return longestValidParentheses(xs, idx + 1, max, num, level + 1);
+		}
+
+		if (level == 0) {
+			return longestValidParentheses(xs, idx + 1, max, 0, 0);
+		}
+
+		int nmax = (max > (num + 1) ? max : (num + 1));
+		return longestValidParentheses(xs, idx + 1, nmax, num + 1, level - 1);
+	}
+
+	public int longestValidParentheses(String s) {
+		char[] xs = s.toCharArray();
+		int[] ps = new int[xs.length];
+		int psIdx = 0;
+		Range[] ranges = new Range[xs.length];
+		int rangeIdx = 0;
+		for (int i = 0; i < xs.length; i++) {
+			char x = xs[i];
+			if (x == '(') {
+				ps[psIdx++] = i;
+			} else {
+				if (psIdx == 0) {
+					continue;
+				}
+				int idx = ps[psIdx - 1];
+				psIdx--;
+				ranges[rangeIdx++] = new Range(idx, i);
+				while (rangeIdx > 1) {
+					// merge ranges
+					Range lastRange = ranges[rangeIdx - 1];
+					Range lastSecondRange = ranges[rangeIdx - 2];
+					if (lastRange.s < lastSecondRange.s) {
+						// last one is bigger, and contains the second
+						ranges[rangeIdx - 2] = lastRange;
+						rangeIdx--;
+					} else if (lastSecondRange.e + 1 == lastRange.s) {
+						// two range can be merged
+						ranges[rangeIdx - 2] = new Range(lastSecondRange.s,
+								lastRange.e);
+						rangeIdx--;
+						break;
+					} else {
+						break;
+					}
+				}
+			}
+		}
+
+		int max = 0;
+		for (int i = 0; i < rangeIdx; i++) {
+			Range range = ranges[i];
+			int num = range.e - range.s + 1;
+			if (num > max) {
+				max = num;
+			}
+		}
+		return max;
+	}
+
+	private List<List<Integer>> fourSum1(int[] num, int s, int e, int target) {
+		int sum = num[s] + num[e];
+		if (sum > target) {
+			return null;
+		}
+
+		List<List<Integer>> rt = fourSum2(new ArrayList<List<Integer>>(), num,
+				s + 1, e - 1, target - sum);
+		if (rt != null && rt.size() > 0) {
+			List<List<Integer>> get = new ArrayList<List<Integer>>();
+			for (List<Integer> one : rt) {
+				int b = one.get(0);
+				int c = one.get(1);
+				List<Integer> abcd = new ArrayList<Integer>();
+				abcd.add(s);
+				abcd.add(b);
+				abcd.add(c);
+				abcd.add(e);
+				get.add(abcd);
+			}
+			return get;
+		} else {
+			return null;
+		}
+	}
+
+	private List<List<Integer>> fourSum2(List<List<Integer>> rt, int[] num,
+			int s, int e, int target) {
+		if (s >= e) {
+			return rt;
+		}
+
+		int x = num[s];
+		int y = num[e];
+		if (x + y == target) {
+			List<Integer> bc = new ArrayList<Integer>();
+			bc.add(s);
+			bc.add(e);
+			rt.add(bc);
+			return fourSum2(rt, num, s + 1, e - 1, target);
+		} else if (x + y > target) {
+			return fourSum2(rt, num, s, e - 1, target);
+		} else {
+			return fourSum2(rt, num, s + 1, e, target);
+		}
+	}
+
+	public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
+		if (num.length < 4) {
+			return new ArrayList<ArrayList<Integer>>();
+		}
+		Arrays.sort(num);
+
+		int head = num[0];
+		if (head < 0) {
+			target = target - 4 * head;
+			int i = 0;
+			for (i = 0; i < num.length; i++) {
+				num[i] -= head;
+				if (num[i] > target) {
+					break;
+				}
+			}
+			num = Arrays.copyOf(num, i);
+		}
+
+		ArrayList<ArrayList<Integer>> list = new ArrayList<ArrayList<Integer>>();
+
+		Set<String> set = new HashSet<String>();
+		for (int i = 0; i < num.length - 3; i++) {
+			for (int j = i + 3; j < num.length; j++) {
+				List<List<Integer>> rt = fourSum1(num, i, j, target);
+				if (rt != null && rt.size() > 0) {
+					for (List<Integer> abcd : rt) {
+						int a = num[abcd.get(0)];
+						int b = num[abcd.get(1)];
+						int c = num[abcd.get(2)];
+						int d = num[abcd.get(3)];
+						String key = "" + a + b + c + d;
+						if (set.contains(key)) {
+							continue;
+						}
+						set.add(key);
+						ArrayList<Integer> cccc = new ArrayList<Integer>();
+						cccc.add(a + head);
+						cccc.add(b + head);
+						cccc.add(c + head);
+						cccc.add(d + head);
+						list.add(cccc);
+					}
+				}
+			}
+		}
+
+		return list;
+	}
+
+	static class TreeNode {
+		int val;
+		TreeNode left;
+		TreeNode right;
+
+		TreeNode(int x) {
+			val = x;
+		}
+
+		@Override
+		public String toString() {
+			return "TreeNode [val=" + val + "]";
+		}
+	}
+
+	public ArrayList<Integer> postorderTraversal(TreeNode root) {
+		TreeNode[] array = new TreeNode[100];
+		ArrayList<Integer> values = new ArrayList<Integer>();
+		int depth = 0;
+		TreeNode ptr = root;
+		TreeNode tmp = null;
+		while (ptr != null) {
+			if (ptr.left != null || ptr.right != null) {
+				if (depth >= array.length) {
+					array = Arrays.copyOf(array, array.length + 10);
+				}
+				array[depth++] = ptr;
+				if (ptr.left != null) {
+					tmp = ptr;
+					ptr = ptr.left;
+					tmp.left = null;
+				} else if (ptr.right != null) {
+					tmp = ptr;
+					ptr = ptr.right;
+					tmp.right = null;
+				}
+			} else {
+				values.add(ptr.val);
+				if (depth > 0) {
+					ptr = array[--depth];
+				} else {
+					ptr = null;
+				}
+			}
+		}
+
+		return values;
+	}
+
+	public ArrayList<Integer> preorderTraversal(TreeNode root) {
+		TreeNode[] array = new TreeNode[100];
+		ArrayList<Integer> values = new ArrayList<Integer>();
+		int depth = 0;
+		TreeNode ptr = root;
+		TreeNode tmp = null;
+		boolean back = false;
+		while (ptr != null) {
+			if (!back) {
+				values.add(ptr.val);
+			}
+			if (ptr.left != null || ptr.right != null) {
+				back = false;
+				if (depth >= array.length) {
+					array = Arrays.copyOf(array, array.length + 10);
+				}
+				array[depth++] = ptr;
+				if (ptr.left != null) {
+					tmp = ptr;
+					ptr = ptr.left;
+					tmp.left = null;
+				} else if (ptr.right != null) {
+					tmp = ptr;
+					ptr = ptr.right;
+					tmp.right = null;
+				}
+			} else {
+				if (depth > 0) {
+					ptr = array[--depth];
+					back = true;
+				} else {
+					ptr = null;
+				}
+			}
+		}
+
+		return values;
+	}
+
+	public void reorderList(ListNode head) {
+		if (head == null) {
+			return;
+		}
+		ListNode[] nodes = toArray(head);
+		int j = nodes.length - 1;
+		for (int i = 0; i < j; i++, j--) {
+			ListNode a = nodes[i];
+			ListNode b = nodes[j];
+			if (j - i == 1) {
+				a.next = b;
+				b.next = null;
+				break;
+			} else if (j - i == 2) {
+				ListNode tmp = nodes[i + 1];
+				a.next = b;
+				b.next = tmp;
+				tmp.next = null;
+				break;
+			} else {
+				ListNode tmp = a.next;
+				a.next = b;
+				b.next = tmp;
+			}
+		}
+	}
+
+	public boolean hasCycle(ListNode head) {
+		if (head == null || head.next == null) {
+			return false;
+		}
+		ListNode ptr0 = head;
+		ListNode ptr1 = head.next;
+		while (ptr0 != null) {
+			if (ptr1 == ptr0) {
+				break;
+			}
+
+			ptr0 = ptr0.next;
+
+			if (ptr1 == null || ptr1.next == null) {
+				break;
+			}
+			ptr1 = ptr1.next.next;
+		}
+		if (ptr0 == null || ptr1 == null || ptr1.next == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public ListNode detectCycle(ListNode head) {
+		if (head == null || head.next == null) {
+			return null;
+		}
+		ListNode ptr0 = head;
+		ListNode ptr1 = head;
+		do {
+			ptr0 = ptr0.next;
+			if (ptr1 == null) {
+				break;
+			}
+			ptr1 = ptr1.next;
+			if (ptr1 == null) {
+				break;
+			}
+			ptr1 = ptr1.next;
+		} while (ptr1 != ptr0);
+
+		if (ptr0 == null || ptr1 == null || ptr1.next == null) {
+			return null;
+		} else {
+			ptr0 = head;
+			while (ptr0 != ptr1) {
+				ptr0 = ptr0.next;
+				ptr1 = ptr1.next;
+			}
+			return ptr0;
+		}
+	}
+
+	class RandomListNode {
+		int label;
+		RandomListNode next, random;
+
+		RandomListNode(int x) {
+			this.label = x;
+		}
+	};
+
+	public RandomListNode copyRandomList(RandomListNode head) {
+		if (head == null) {
+			return null;
+		}
+
+		RandomListNode copyHead = new RandomListNode(-1);
+		RandomListNode ptr0 = head;
+		RandomListNode ptr1 = copyHead;
+
+		Map<RandomListNode, Integer> ps = new HashMap<RandomListNode, Integer>();
+		RandomListNode[] nodes = new RandomListNode[100];
+		int idx = 0;
+		while (ptr0 != null) {
+			ps.put(ptr0, idx);
+			ptr1.next = new RandomListNode(ptr0.label);
+			ptr0 = ptr0.next;
+			ptr1 = ptr1.next;
+			if (idx >= nodes.length) {
+				nodes = Arrays.copyOf(nodes, nodes.length + 20);
+			}
+			nodes[idx] = ptr1;
+			idx += 1;
+		}
+
+		copyHead = copyHead.next;
+
+		nodes = Arrays.copyOf(nodes, idx);
+
+		ptr0 = head;
+		ptr1 = copyHead;
+		while (ptr0 != null) {
+			RandomListNode random = ptr0.random;
+			if (random != null) {
+				int i = ps.get(random);
+				ptr1.random = nodes[i];
+			} else {
+
+			}
+			ptr0 = ptr0.next;
+			ptr1 = ptr1.next;
+		}
+
+		return copyHead;
+	}
+
+	public int singleNumber(int[] A) {
+		if(A.length == 1) {
+			return A[0];
+		}
+		
+		int x = A[0];
+		for(int i = 1; i < A.length; i++) {
+			x = x ^ A[i];
+		}
+		return x;
+	}
+
+	public int singleNumber2(int[] A) {
+		int[] count = new int[32];
+		Arrays.fill(count, 0);
+		int result = 0;
+		
+		for(int i = 0; i < 32; i++) {
+			for(int j = 0; j < A.length; j++) {
+				if(((A[j] >> i) & 1) == 1) {
+					count[i] += 1;
+				}
+			}
+			
+			result |= (count[i] % 3) << i;
+		}
+		
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		SolutionApp app = new SolutionApp();
+
+		TreeNode root = new TreeNode(1);
+		root.left = new TreeNode(2);
+		ArrayList<Integer> post = app.postorderTraversal(root);
+		for (Integer val : post) {
+			System.out.println(val);
+		}
 		// System.out.println(app.jump(new int[] { 5, 6, 4, 4, 6, 9, 4, 4, 7, 4,
 		// 4, 8, 2, 6, 8, 1, 5, 9, 6, 5, 2, 7, 9, 7, 9, 6, 9, 4, 1, 6, 8,
 		// 8, 4, 4, 2, 0, 3, 8, 5 }));
+		//
+		// System.out.println(app.maxSubArray(new int[] { -2, 1, -3, 4, -1, 2,
+		// 1,
+		// -5, 4 }));
+		//
+		// System.out.println(app.searchRange(new int[] { 1, 2, 3 }, 1));
+		//
+		// System.out.println(app.fourSum(new int[] { -5, 5, 4, -3, 0, 0, 4, -2
+		// },
+		// 4));
 
-		System.out.println(app.maxSubArray(new int[] { -2, 1, -3, 4, -1, 2, 1,
-				-5, 4 }));
+		// try (BufferedReader reader = new BufferedReader(new
+		// FileReader("src/main/scala/com/me/problems/leetcode/longestValidParenthesesTest.txt"))){
+		// StringBuilder sb = new StringBuilder();
+		// String line = reader.readLine();
+		// while(line != null) {
+		// sb.append(line);
+		// line = reader.readLine();
+		// }
+		//
+		// System.out.println(app.longestValidParentheses(sb.toString()));
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		// System.out.println(app.longestValidParentheses("()()"));
 		// System.out.println(app
 		// .evalRPN(new String[] { "4", "13", "5", "/", "+" }));
 		// (0,0),(1,1),(1,-1)
