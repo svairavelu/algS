@@ -290,31 +290,92 @@ object Solution extends App {
   println(TreeNode.postorderTraversal(tree))
 
   def wordBreak(str: String, dict: Set[String]): List[String] = {
-    def findValidStop(idx: Int): List[Int] = 
-      (for(i <- str.length until idx by -1 if dict.contains(str.substring(idx, i))) yield i).toList
-    
-    val indexArray = (for(i <- 0 until str.length) yield findValidStop(i)).toArray
-    
+    def findValidStop(idx: Int): List[Int] =
+      (for (i <- str.length until idx by -1 if dict.contains(str.substring(idx, i))) yield i).toList
+
+    val indexArray = (for (i <- 0 until str.length) yield findValidStop(i)).toArray
+
     def collect(idx: Int, path: String, paths: List[String]): List[String] = {
       val stops = indexArray(idx)
-      var npaths = paths	  
-      for(stop <- stops) {
+      var npaths = paths
+      for (stop <- stops) {
         var s = str.substring(idx, stop)
-        if(idx > 0) {
+        if (idx > 0) {
           s = path + " " + s
         }
-        if(stop == str.length()) {
+        if (stop == str.length()) {
           npaths = npaths :+ s
         } else {
           npaths = collect(stop, s, npaths)
         }
       }
-      
+
       npaths
     }
-    
+
     collect(0, "", Nil)
   }
 
   println(wordBreak("catsanddog", Set("cat", "cats", "and", "sand", "dog")))
+  
+  
+  def minCut(str: String): Int = {
+    if (str == null || str.length() <= 1) {
+      0
+    } else {
+      val n = str.length()
+      val flags = Array.fill(n, n)(-1)
+      val cuts = Array.fill(n)(-1)
+      def check(i: Int, j: Int): Int = flags(i)(j) match {
+        case -1 =>
+          if (i == j) {
+            flags(i)(j) = 1
+            1
+          } else {
+            if (str(i) == str(j)) {
+              if (j - i > 2) {
+                flags(i)(j) = check(i + 1, j - 1)
+                flags(i)(j)
+              } else {
+                flags(i)(j) = 1
+                1
+              }
+            } else {
+              flags(i)(j) = 0
+              0
+            }
+          }
+        case x => x
+      }
+      def cut(i: Int): Int = {
+        if (cuts(i) >= 0) {
+          cuts(i)
+        } else {
+          var checked = check(0, i)
+          if (checked == 1) {
+            cuts(i) = 0
+            0
+          } else {
+            (1 to i).foldLeft(i)(
+              (min, j) => {
+                checked = check(j, i)
+                if (checked == 1) {
+                  val preCuts = cut(j - 1) + 1
+                  if (preCuts < min) {
+                    preCuts
+                  } else {
+                    min
+                  }
+                } else {
+                  min
+                }
+              })
+          }
+        }
+      }
+      cut(n - 1)
+    }
+  }
+  
+  println(minCut("abbab"))
 }

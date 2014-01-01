@@ -853,12 +853,12 @@ public class SolutionApp {
 	}
 
 	public int singleNumber(int[] A) {
-		if(A.length == 1) {
+		if (A.length == 1) {
 			return A[0];
 		}
-		
+
 		int x = A[0];
-		for(int i = 1; i < A.length; i++) {
+		for (int i = 1; i < A.length; i++) {
 			x = x ^ A[i];
 		}
 		return x;
@@ -868,29 +868,87 @@ public class SolutionApp {
 		int[] count = new int[32];
 		Arrays.fill(count, 0);
 		int result = 0;
-		
-		for(int i = 0; i < 32; i++) {
-			for(int j = 0; j < A.length; j++) {
-				if(((A[j] >> i) & 1) == 1) {
+
+		for (int i = 0; i < 32; i++) {
+			for (int j = 0; j < A.length; j++) {
+				if (((A[j] >> i) & 1) == 1) {
 					count[i] += 1;
 				}
 			}
-			
+
 			result |= (count[i] % 3) << i;
 		}
-		
+
 		return result;
 	}
-	
+
+	public static int pal(int i, int j, String s, int[][] pal) {
+		if (pal[i][j] != 0)
+			return pal[i][j];
+
+		if (j == i) {
+			pal[i][j] = 2;
+			return 2;
+		}
+
+		if (s.charAt(i) == s.charAt(j)) {
+			if(j - i > 2) {
+				pal[i][j] = pal(i + 1, j - 1, s, pal);
+			} else {
+				pal[i][j] = 2;
+			}
+			return pal[i][j];
+		} else {
+			pal[i][j] = 1;
+			return 1;
+		}
+	}
+
+	public static int cut(int i, String s, int[] cut, int[][] pal) {
+
+		if (cut[i] != 0) {
+			return cut[i];
+		}
+		if (pal(0, i, s, pal) == 2) {
+			cut[i] = 0;
+			return 0;
+		}
+
+		int min = i;
+		for(int k = 1; k <= i; k++) {
+			if(pal(k, i, s, pal) == 2) {
+				int tmp = cut(k - 1, s, cut, pal) + 1;
+				if(tmp < min) {
+					min = tmp;
+				}
+			}
+		}
+		cut[i] = min;
+
+		return min;
+	}
+
+	public static int minCut(String s) {
+		int len = s.length();
+		if (len <= 1)
+			return 0;
+		int pal[][] = new int[len][len];
+		int cut[] = new int[len];
+
+		return cut(len - 1, s, cut, pal);
+
+	}
+
 	public static void main(String[] args) {
 		SolutionApp app = new SolutionApp();
 
-		TreeNode root = new TreeNode(1);
-		root.left = new TreeNode(2);
-		ArrayList<Integer> post = app.postorderTraversal(root);
-		for (Integer val : post) {
-			System.out.println(val);
-		}
+		System.out.println(app.minCut("abbab"));
+		// TreeNode root = new TreeNode(1);
+		// root.left = new TreeNode(2);
+		// ArrayList<Integer> post = app.postorderTraversal(root);
+		// for (Integer val : post) {
+		// System.out.println(val);
+		// }
 		// System.out.println(app.jump(new int[] { 5, 6, 4, 4, 6, 9, 4, 4, 7, 4,
 		// 4, 8, 2, 6, 8, 1, 5, 9, 6, 5, 2, 7, 9, 7, 9, 6, 9, 4, 1, 6, 8,
 		// 8, 4, 4, 2, 0, 3, 8, 5 }));
