@@ -892,7 +892,7 @@ public class SolutionApp {
 		}
 
 		if (s.charAt(i) == s.charAt(j)) {
-			if(j - i > 2) {
+			if (j - i > 2) {
 				pal[i][j] = pal(i + 1, j - 1, s, pal);
 			} else {
 				pal[i][j] = 2;
@@ -915,10 +915,10 @@ public class SolutionApp {
 		}
 
 		int min = i;
-		for(int k = 1; k <= i; k++) {
-			if(pal(k, i, s, pal) == 2) {
+		for (int k = 1; k <= i; k++) {
+			if (pal(k, i, s, pal) == 2) {
 				int tmp = cut(k - 1, s, cut, pal) + 1;
-				if(tmp < min) {
+				if (tmp < min) {
 					min = tmp;
 				}
 			}
@@ -939,10 +939,144 @@ public class SolutionApp {
 
 	}
 
-	public static void main(String[] args) {
-		SolutionApp app = new SolutionApp();
+	private boolean alphanumeric(char c) {
+		if (c >= '0' && c <= '9') {
+			return true;
+		}
 
-		System.out.println(app.minCut("abbab"));
+		if (c >= 'a' && c <= 'z') {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isPalindrome(String s) {
+		if (s == null) {
+			return false;
+		}
+
+		if (s.trim().isEmpty()) {
+			return true;
+		}
+
+		char[] cs = s.trim().toLowerCase().toCharArray();
+
+		boolean matched = true;
+		for (int i = 0, j = cs.length - 1; i < j;) {
+			char x = cs[i];
+			char y = cs[j];
+			if (!alphanumeric(x)) {
+				i += 1;
+				continue;
+			}
+
+			if (!alphanumeric(y)) {
+				j -= 1;
+				continue;
+			}
+
+			if (x == y) {
+				i += 1;
+				j -= 1;
+			} else {
+				matched = false;
+				break;
+			}
+		}
+
+		return matched;
+	}
+
+	private int max(int x, int y) {
+		if (x > y) {
+			return x;
+		} else {
+			return y;
+		}
+	}
+
+	public int maxPathSum(TreeNode root) {
+		int[] res = new int[1];
+		res[0] = Integer.MIN_VALUE;
+		maxPath(root, res);
+		return res[0];
+	}
+
+	private int maxPath(TreeNode root, int[] res) {
+		if (root == null)
+			return 0;
+		int left = maxPath(root.left, res);
+		int right = maxPath(root.right, res);
+		int arch = left + right + root.val;
+		int single = Math.max(root.val, Math.max(left, right) + root.val);
+		res[0] = Math.max(res[0], Math.max(arch, single));
+		return single;
+	}
+
+	static class Interval {
+		int start;
+		int end;
+
+		Interval() {
+			start = 0;
+			end = 0;
+		}
+
+		Interval(int s, int e) {
+			start = s;
+			end = e;
+		}
+
+		@Override
+		public String toString() {
+			return "Interval [start=" + start + ", end=" + end + "]";
+		}
+	}
+
+	public static ArrayList<Interval> insert(ArrayList<Interval> intervals,
+			Interval newInterval) {
+		ArrayList<Interval> list = new ArrayList<Interval>();
+		boolean newIntervalProcessed = false;
+		for(Interval interval : intervals) {
+			if(newIntervalProcessed) {
+				list.add(interval);
+				continue;
+			}
+			
+			if(interval.start > newInterval.end) {
+				if(!newIntervalProcessed) {
+					list.add(newInterval);
+					newIntervalProcessed = true;
+				}
+				list.add(interval);
+			} else if(newInterval.start <= interval.start) {
+				newInterval = new Interval(newInterval.start, Math.max(newInterval.end, interval.end));
+			} else if(newInterval.start <= interval.end) {
+				newInterval = new Interval(interval.start, Math.max(newInterval.end, interval.end));
+			} else {
+				list.add(interval);
+			}
+		}
+		
+		if(!newIntervalProcessed) {
+			list.add(newInterval);
+		}
+		return list;
+	}
+
+	public static void main(String[] args) {
+		ArrayList<Interval> intervals = new ArrayList<Interval>();
+		intervals.add(new Interval(1, 5));
+		
+		ArrayList<Interval> list = insert(intervals, new Interval(2, 3));
+		for(Interval interval : list) {
+			System.out.println(interval);
+		}
+		
+//		SolutionApp app = new SolutionApp();
+
+//		System.out.println(app.minCut("abbab"));
 		// TreeNode root = new TreeNode(1);
 		// root.left = new TreeNode(2);
 		// ArrayList<Integer> post = app.postorderTraversal(root);
