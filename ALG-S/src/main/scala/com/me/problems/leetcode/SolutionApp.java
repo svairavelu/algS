@@ -1,7 +1,10 @@
 package com.me.problems.leetcode;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1038,45 +1041,214 @@ public class SolutionApp {
 			Interval newInterval) {
 		ArrayList<Interval> list = new ArrayList<Interval>();
 		boolean newIntervalProcessed = false;
-		for(Interval interval : intervals) {
-			if(newIntervalProcessed) {
+		for (Interval interval : intervals) {
+			if (newIntervalProcessed) {
 				list.add(interval);
 				continue;
 			}
-			
-			if(interval.start > newInterval.end) {
-				if(!newIntervalProcessed) {
+
+			if (interval.start > newInterval.end) {
+				if (!newIntervalProcessed) {
 					list.add(newInterval);
 					newIntervalProcessed = true;
 				}
 				list.add(interval);
-			} else if(newInterval.start <= interval.start) {
-				newInterval = new Interval(newInterval.start, Math.max(newInterval.end, interval.end));
-			} else if(newInterval.start <= interval.end) {
-				newInterval = new Interval(interval.start, Math.max(newInterval.end, interval.end));
+			} else if (newInterval.start <= interval.start) {
+				newInterval = new Interval(newInterval.start, Math.max(
+						newInterval.end, interval.end));
+			} else if (newInterval.start <= interval.end) {
+				newInterval = new Interval(interval.start, Math.max(
+						newInterval.end, interval.end));
 			} else {
 				list.add(interval);
 			}
 		}
-		
-		if(!newIntervalProcessed) {
+
+		if (!newIntervalProcessed) {
 			list.add(newInterval);
 		}
 		return list;
 	}
 
-	public static void main(String[] args) {
-		ArrayList<Interval> intervals = new ArrayList<Interval>();
-		intervals.add(new Interval(1, 5));
-		
-		ArrayList<Interval> list = insert(intervals, new Interval(2, 3));
-		for(Interval interval : list) {
-			System.out.println(interval);
+	public static int minimumTotal(ArrayList<ArrayList<Integer>> triangle) {
+		if (triangle == null || triangle.size() == 0) {
+			return 0;
 		}
-		
-//		SolutionApp app = new SolutionApp();
 
-//		System.out.println(app.minCut("abbab"));
+		int height = triangle.size() - 1;
+		int n = triangle.get(height).size();
+		int[] xs = new int[n];
+		int[] ys = new int[n];
+		ArrayList<Integer> firstRow = triangle.get(0);
+		xs[0] = firstRow.get(0);
+		for (int i = 1; i <= height; i++) {
+			ArrayList<Integer> row = triangle.get(i);
+			ys[0] = xs[0] + row.get(0);
+			int m = row.size();
+			for (int j = 1; j < m - 1; j++) {
+				int value = row.get(j);
+				int a = xs[j - 1];
+				int b = xs[j];
+				ys[j] = Math.min(a + value, b + value);
+			}
+			ys[m - 1] = xs[m - 2] + row.get(m - 1);
+			int[] tmp = ys;
+			ys = xs;
+			xs = tmp;
+		}
+
+		int min = Integer.MAX_VALUE;
+		for (int i = 0; i < n; i++) {
+			if (xs[i] < min) {
+				min = xs[i];
+			}
+		}
+		return min;
+	}
+
+	public static void testTriangle() {
+		try (BufferedReader reader = new BufferedReader(new FileReader(
+				"src/main/scala/com/me/problems/leetcode/triangle_0.txt"))) {
+			String line = reader.readLine();
+			ArrayList<ArrayList<Integer>> triangle = new ArrayList<ArrayList<Integer>>();
+			while (line != null) {
+				String[] nums = line.split(",");
+				ArrayList<Integer> row = new ArrayList<Integer>();
+				for (String num : nums) {
+					row.add(Integer.valueOf(num));
+				}
+				triangle.add(row);
+				line = reader.readLine();
+			}
+
+			System.out.println(minimumTotal(triangle));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public static ArrayList<Integer> getRow(int rowIndex) {
+		int[] xs = new int[rowIndex + 1];
+		int[] ys = new int[rowIndex + 1];
+
+		xs[0] = 1;
+		for (int i = 1; i <= rowIndex; i++) {
+			ys[0] = 1;
+			for (int j = 1; j < i; j++) {
+				ys[j] = xs[j - 1] + xs[j];
+			}
+			ys[i] = 1;
+
+			int[] tmp = ys;
+			ys = xs;
+			xs = tmp;
+		}
+
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		for (int i = 0; i <= rowIndex; i++) {
+			res.add(xs[i]);
+		}
+		return res;
+	}
+
+	public static void testPascalTriangle2() {
+		ArrayList<Integer> rest = getRow(1);
+		for (int x : rest) {
+			System.out.print(x + " ");
+		}
+	}
+
+	public static ArrayList<ArrayList<Integer>> generate(int rowIndex) {
+		ArrayList<ArrayList<Integer>> triangle = new ArrayList<ArrayList<Integer>>();
+		if (rowIndex == 0) {
+			return triangle;
+		}
+
+		ArrayList<Integer> row0 = new ArrayList<Integer>();
+		row0.add(1);
+
+		triangle.add(row0);
+		ArrayList<Integer> lastRow = row0;
+		for (int i = 1; i < rowIndex; i++) {
+			ArrayList<Integer> ys = new ArrayList<Integer>();
+			ys.add(1);
+			for (int j = 1; j < i; j++) {
+				ys.add(lastRow.get(j - 1) + lastRow.get(j));
+			}
+			ys.add(1);
+			triangle.add(ys);
+			lastRow = ys;
+		}
+		return triangle;
+	}
+
+	private static int toNum(boolean[] bits) {
+		int num = 0;
+		for (int i = 0; i < bits.length; i++) {
+			int x = 0;
+			if (bits[i]) {
+				x = 1;
+			}
+			num = num * 2 + x;
+		}
+		return num;
+	}
+
+	public static ArrayList<Integer> grayCode(int n) {
+		boolean[] bits = new boolean[n];
+		ArrayList<Integer> ys = new ArrayList<Integer>();
+		ys.add(0);
+		int nxt = 0;
+		java.util.BitSet bs = new java.util.BitSet();
+		bs.set(0);
+
+		while (nxt >= 0) {
+			int tmp = nxt;
+			for (int i = n - 1; i >= 0; i--) {
+				bits[i] = !bits[i];
+				int x = toNum(bits);
+				if (bs.get(x)) {
+					// already added
+					bits[i] = !bits[i];
+				} else {
+					nxt = x;
+					bs.set(x);
+					ys.add(nxt);
+					break;
+				}
+			}
+			if (nxt == tmp) {
+				// can't find the next value;
+				nxt = -1;
+			}
+		}
+		return ys;
+	}
+
+	public static void testGrayCode() {
+		ArrayList<Integer> codes = grayCode(12);
+		String sep = "";
+		for (Integer code : codes) {
+			System.out.print(sep + code);
+			sep = "->";
+		}
+	}
+
+	public static void main(String[] args) {
+		testGrayCode();
+		// testPascalTriangle2();
+		// testTriangle();
+		// ArrayList<Interval> intervals = new ArrayList<Interval>();
+		// intervals.add(new Interval(1, 5));
+		//
+		// ArrayList<Interval> list = insert(intervals, new Interval(2, 3));
+		// for (Interval interval : list) {
+		// System.out.println(interval);
+		// }
+
+		// SolutionApp app = new SolutionApp();
+
+		// System.out.println(app.minCut("abbab"));
 		// TreeNode root = new TreeNode(1);
 		// root.left = new TreeNode(2);
 		// ArrayList<Integer> post = app.postorderTraversal(root);

@@ -317,8 +317,7 @@ object Solution extends App {
   }
 
   println(wordBreak("catsanddog", Set("cat", "cats", "and", "sand", "dog")))
-  
-  
+
   def minCut(str: String): Int = {
     if (str == null || str.length() <= 1) {
       0
@@ -376,6 +375,52 @@ object Solution extends App {
       cut(n - 1)
     }
   }
-  
+
   println(minCut("abbab"))
+
+  def generateParenthesis(n: Int): Set[String] = {
+    var cache = Map.empty[Int, Set[String]]
+
+    def fun(n: Int): Set[String] = {
+      if (cache.contains(n)) {
+        cache(n)
+      } else {
+        n match {
+          case 1 =>
+            val set = Set("()")
+            cache += 1 -> set
+            set
+          case x =>
+            var set = Set.empty[String]
+            for {
+              i <- 1 until x
+              j = x - i
+              if (j >= i)
+              ix <- fun(i)
+              jx <- fun(j)
+              k <- 0 to jx.length
+            } {
+              if (k == 0) {
+                set += (ix + jx)
+              } else if (k == jx.length()) {
+                set += (jx + ix)
+              } else {
+                val pre = jx.substring(0, k)
+                val tail = jx.substring(k)
+                set += (pre + ix + tail)
+              }
+            }
+
+            cache += x -> set
+            set
+        }
+      }
+    }
+
+    fun(n)
+  }
+  
+  println(generateParenthesis(2))
+  println(generateParenthesis(3))
+  println(generateParenthesis(4))
 }
