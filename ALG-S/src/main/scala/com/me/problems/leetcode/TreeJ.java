@@ -38,4 +38,19 @@ public class TreeJ {
 		}
 		return Math.min(minDepth(root.left), minDepth(root.right)) + 1;
 	}
+	
+	public static boolean isBalanced(Tree tree) {
+		int lh = height(tree.left);
+		int rh = height(tree.right);
+		int diff = Math.abs(lh - rh);
+		return diff <= 1;
+	}
+	
+	public static int height(Tree tree) {
+		if(tree == null) {
+			return -1;
+		}
+		
+		return Math.max(height(tree.left), height(tree.right)) + 1;
+	}
 }
