@@ -1234,8 +1234,48 @@ public class SolutionApp {
 		}
 	}
 
+	public static ArrayList<String> restoreIpAddresses(String s) {
+		// Start typing your Java solution below
+		// DO NOT write main() function
+		ArrayList<String> result = new ArrayList<String>();
+		helper(s, 0, "", result);
+		return result;
+	}
+
+	public static void helper(String dataSegment, int level, String temp,
+			ArrayList<String> result) {
+		if (level == 4) {
+			if (dataSegment.length() == 0)
+				result.add(temp.substring(1));
+			return;
+		}
+		int possi = dataSegment.length() >= 3 ? 3 : dataSegment.length();
+		for (int i = 1; i <= possi; i++) {
+			String newOne = dataSegment.substring(0, i);
+			if (isValidSegment(newOne)) {
+				temp += "." + newOne;
+				helper(dataSegment.substring(i), level + 1, temp, result);
+				temp = temp.substring(0, temp.lastIndexOf("."));
+			}
+		}
+	}
+
+	public static boolean isValidSegment(String s) {
+		if (s.charAt(0) == '0')
+			return s.length() == 1;
+		Integer result = Integer.parseInt(s);
+		if (result > 255)
+			return false;
+		return true;
+	}
+
+	public static void testRestoreIpAddresses() {
+		restoreIpAddresses("1111");
+	}
+
 	public static void main(String[] args) {
-		testGrayCode();
+		// testGrayCode();
+		testRestoreIpAddresses();
 		// testPascalTriangle2();
 		// testTriangle();
 		// ArrayList<Interval> intervals = new ArrayList<Interval>();

@@ -96,6 +96,19 @@ class Graph[T, U] extends GraphBase[T, U] {
     }
     spanningTreesR(edges, nodes.values.toList.tail, Nil).removeDuplicates
   }
+
+  def minimalSpanningTree(implicit f: (U) => Ordered[U]): Graph[T, U] = {
+    def minimalSpanningTreeR(graphEdges: List[Edge], graphNodes: List[Node], treeEdges: List[Edge]): Graph[T, U] =
+      if (graphNodes == Nil) Graph.termLabel(nodes.keys.toList, treeEdges.map(_.toTuple))
+      else {
+        val nextEdge = graphEdges.filter(edgeConnectsToGraph(_, graphNodes)).reduceLeft((r, e) => if (r.value < e.value) r else e)
+        minimalSpanningTreeR(graphEdges.filterNot(_ == nextEdge),
+          graphNodes.filter(edgeTarget(nextEdge, _) == None),
+          nextEdge :: treeEdges)
+      }
+    minimalSpanningTreeR(edges, nodes.values.toList.tail, Nil)
+  }
+
   def isTree: Boolean = spanningTrees.lengthCompare(1) == 0
   def isConnected: Boolean = spanningTrees.lengthCompare(0) > 0
 }

@@ -40,5 +40,4 @@ object Tree {
     case Node(_, End, End) => 1
     case Node(_, l, r) => math.min(minDepth(l), minDepth(r)) + 1
   }
-
 }
