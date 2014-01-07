@@ -4,6 +4,7 @@
 package com.me.problems.leetcode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,13 +52,14 @@ public class SubSetIIJ {
 	}
 
 	private Map<P, ArrayList<ArrayList<Integer>>> cache;
+
 	public ArrayList<ArrayList<Integer>> subsetsWithDup(int[] num) {
 		this.cache = new HashMap<P, ArrayList<ArrayList<Integer>>>();
 		return fx(num, new P(0, num.length));
 	}
 
 	private ArrayList<ArrayList<Integer>> fx(int[] num, P p) {
-		if(cache.containsKey(p)) {
+		if (cache.containsKey(p)) {
 			return cache.get(p);
 		}
 		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
@@ -65,31 +67,31 @@ public class SubSetIIJ {
 		result.add(empty);
 		Set<String> set = new HashSet<String>();
 		set.add(listToString(empty));
-		
-		if(p.e == p.s) {
+
+		if (p.e == p.s) {
 			cache.put(p, result);
 			return result;
 		}
-		
-		if(p.e == p.s + 1) {
+
+		if (p.e == p.s + 1) {
 			ArrayList<Integer> one = new ArrayList<Integer>();
 			one.add(num[p.s]);
 			result.add(one);
 			cache.put(p, result);
 			return result;
 		}
-		
-		for(int i = p.s + 1; i < p.e; i++) {
+
+		for (int i = p.s + 1; i < p.e; i++) {
 			ArrayList<ArrayList<Integer>> left = fx(num, new P(p.s, i));
 			ArrayList<ArrayList<Integer>> right = fx(num, new P(i, p.e));
-			for(ArrayList<Integer> l : left) {
-				for(ArrayList<Integer> r : right) {
+			for (ArrayList<Integer> l : left) {
+				for (ArrayList<Integer> r : right) {
 					ArrayList<Integer> lr = new ArrayList<Integer>();
 					lr.addAll(l);
 					lr.addAll(r);
 					Collections.sort(lr);
 					String slr = listToString(lr);
-					if(set.contains(slr)) {
+					if (set.contains(slr)) {
 						continue;
 					}
 					set.add(slr);
@@ -97,18 +99,18 @@ public class SubSetIIJ {
 				}
 			}
 		}
-		
+
 		cache.put(p, result);
 		return result;
 	}
-	
+
 	private String listToString(ArrayList<Integer> list) {
 		String s = "";
-		
-		for(int x : list) {
+
+		for (int x : list) {
 			s = s + x;
 		}
-		
+
 		return s;
 	}
 }

@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1015,59 +1016,6 @@ public class SolutionApp {
 		int single = Math.max(root.val, Math.max(left, right) + root.val);
 		res[0] = Math.max(res[0], Math.max(arch, single));
 		return single;
-	}
-
-	static class Interval {
-		int start;
-		int end;
-
-		Interval() {
-			start = 0;
-			end = 0;
-		}
-
-		Interval(int s, int e) {
-			start = s;
-			end = e;
-		}
-
-		@Override
-		public String toString() {
-			return "Interval [start=" + start + ", end=" + end + "]";
-		}
-	}
-
-	public static ArrayList<Interval> insert(ArrayList<Interval> intervals,
-			Interval newInterval) {
-		ArrayList<Interval> list = new ArrayList<Interval>();
-		boolean newIntervalProcessed = false;
-		for (Interval interval : intervals) {
-			if (newIntervalProcessed) {
-				list.add(interval);
-				continue;
-			}
-
-			if (interval.start > newInterval.end) {
-				if (!newIntervalProcessed) {
-					list.add(newInterval);
-					newIntervalProcessed = true;
-				}
-				list.add(interval);
-			} else if (newInterval.start <= interval.start) {
-				newInterval = new Interval(newInterval.start, Math.max(
-						newInterval.end, interval.end));
-			} else if (newInterval.start <= interval.end) {
-				newInterval = new Interval(interval.start, Math.max(
-						newInterval.end, interval.end));
-			} else {
-				list.add(interval);
-			}
-		}
-
-		if (!newIntervalProcessed) {
-			list.add(newInterval);
-		}
-		return list;
 	}
 
 	public static int minimumTotal(ArrayList<ArrayList<Integer>> triangle) {
