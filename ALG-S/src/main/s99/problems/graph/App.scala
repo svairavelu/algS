@@ -30,6 +30,11 @@ object App extends App {
       ('e', 'h'), ('f', 'g'), ('g', 'h'))).minimalSpanningTree)
       
   println(Graph.fromStringLabel("[a-b/1, b-c/2, a-c/3]").minimalSpanningTree)
+
+  
+  println(Graph.fromString("[a-b]").isIsomorphicTo(Graph.fromString("[5-7]")))
+  
+  println(Graph.fromString("[a-b, b-c, a-c, a-d]").colorNodes)
 }
 //
 //abstract class Factory {

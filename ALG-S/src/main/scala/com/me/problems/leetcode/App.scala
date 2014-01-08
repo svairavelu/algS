@@ -15,4 +15,5 @@ object App extends App {
   
   println(B.f)
   println(C.f)
+  
 }

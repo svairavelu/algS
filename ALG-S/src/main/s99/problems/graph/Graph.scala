@@ -12,6 +12,7 @@ abstract class GraphBase[T, U] {
     var adj: List[Edge] = Nil
     // neighbors are all nodes adjacent to this node.
     def neighbors: List[Node] = adj.map(edgeTarget(_, this).get)
+    def degree: Int = edges.length
   }
 
   var nodes: Map[T, Node] = Map()
@@ -58,6 +59,48 @@ abstract class GraphBase[T, U] {
   def findCycles(source: T): List[List[T]] = {
     val n = nodes(source)
     n.adj.map(edgeTarget(_, n).get.value).flatMap(findPaths(_, source)).map(source :: _).filter(_.lengthCompare(3) > 0)
+  }
+
+  def isIsomorphicTo[R, S](o: GraphBase[R, S]): Boolean = {
+    // Build a lazy list so we only have to evaluate as much as necessary.
+    def listMappings(tNodes: List[Node], oNodes: List[o.Node]) =
+      tNodes.view.flatMap(tn => oNodes.view.map((tn, _)))
+    // Used on partially-filled isomorphisms to weed out some early.
+    def isValidMapping(iso: Map[Node, o.Node]): Boolean =
+      nodes.values forall { tn =>
+        (!iso.contains(tn) ||
+          tn.neighbors.filter(iso.contains).forall(tnn => iso(tn).neighbors.contains(iso(tnn))))
+      }
+    def isValidCompleteMapping(iso: Map[Node, o.Node]): Boolean =
+      nodes.values forall { tn =>
+        Set(tn.neighbors.map(iso.apply(_)): _*) == Set(iso(tn).neighbors: _*)
+      }
+    def isIsomorphicToR(tNodes: List[Node], oNodes: List[o.Node], iso: Map[Node, o.Node]): Boolean =
+      if (tNodes == Nil) isValidCompleteMapping(iso)
+      else listMappings(tNodes, oNodes).filter(p => isValidMapping(iso + p)) exists { p =>
+        isIsomorphicToR(tNodes.filterNot(_ == p._1), oNodes.filterNot(_ == p._2), iso + p)
+      }
+    isIsomorphicToR(nodes.values.toList, o.nodes.values.toList, Map())
+  }
+
+  def nodesByDegree: List[Node] = nodes.values.toList.sortWith(_.degree > _.degree)
+  def colorNodes: List[(Node, Int)] = {
+    import collection.immutable.Set
+    def applyColor(color: Int, uncolored: List[Node], colored: List[(Node, Int)], adjacentNodes: Set[Node]): List[(Node, Int)] =
+      uncolored match {
+        case Nil => colored
+        case n :: tail => {
+          val newAdjacent = adjacentNodes ++ n.neighbors
+          applyColor(color, tail.dropWhile(newAdjacent.apply), (n, color) :: colored, newAdjacent)
+        }
+      }
+    def colorNodesR(color: Int, uncolored: List[Node], colored: List[(Node, Int)]): List[(Node, Int)] =
+      if (uncolored == Nil) colored
+      else {
+        val newColored = applyColor(color, uncolored, colored, Set())
+        colorNodesR(color + 1, uncolored.diff(newColored.map(_._1)), newColored)
+      }
+    colorNodesR(1, nodesByDegree, Nil)
   }
 }
 
