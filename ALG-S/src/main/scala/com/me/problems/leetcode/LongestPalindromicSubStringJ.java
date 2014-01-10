@@ -13,7 +13,6 @@ public class LongestPalindromicSubStringJ {
 			i -= 1;
 			j += 1;
 		}
-
 		return String.copyValueOf(cs, i + 1, j - i - 1);
 	}
 
@@ -38,13 +37,6 @@ public class LongestPalindromicSubStringJ {
 		return longest;
 	}
 
-	/**
-	 * if P[ i' ] ¡Ü R ¨C i, then P[ i ] ¡û P[ i' ] else P[ i ] ¡Ý P[ i' ]. (Which
-	 * we have to expand past the right edge (R) to find P[ i ].
-	 * 
-	 * @param s
-	 * @return
-	 */
 	public String longestPalindrome(String s) {
 		if (s == null || s.length() == 0) {
 			return s;
@@ -60,11 +52,10 @@ public class LongestPalindromicSubStringJ {
 		}
 		ts[2 * l + 1] = '#';
 		ts[2 * l + 2] = '$';
-		// 12 -> ^#1#2#$
 
 		int n = ts.length;
 		int[] p = new int[n];
-		int center = 0, right = 0; // center and right bounder
+		int center = 0, right = 0;
 		for (int i = 1; i < n - 1; i++) {
 			int left = 2 * center - i;
 			if (right > i) {
