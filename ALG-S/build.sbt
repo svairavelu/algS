@@ -17,7 +17,8 @@ unmanagedSourceDirectories in Compile <++= baseDirectory { base =>
   Seq(
     base / "src/main/pat",
     base / "src/main/s99",
-    base / "src/test/s99"
+    base / "src/test/s99",
+    base / "src/main/fp"
   )
 }
 
