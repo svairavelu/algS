@@ -97,6 +97,8 @@ object RNG {
       (f(a), rng2)
     }
 
+  def positiveMax(n: Int): Rand[Int] = map(positiveInt)(_ % n)
+
   val _double: Rand[Double] =
     map(positiveInt)(_ / (Int.MaxValue.toDouble + 1))
 
@@ -149,6 +151,9 @@ object RNG {
       g(a)(r1) // We pass the new state along
     }
 
+  def positiveIntViaFlatMap: Rand[Int] = flatMap(int)(
+    i => if (i > Int.MinValue) unit(i.abs) else positiveIntViaFlatMap)
+  
   def positiveLessThan(n: Int): Rand[Int] = {
     flatMap(positiveInt) { i =>
       val mod = i % n

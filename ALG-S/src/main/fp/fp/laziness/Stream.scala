@@ -9,15 +9,15 @@ trait Stream[+A] {
     case (a, tail) => a :: tail.toList
   }
 
-  //  def toList: List[A] = {
-  //    @annotation.tailrec
-  //    def go(s: Stream[A], acc: List[A]): List[A] = s uncons match {
-  //      case Some(c) =>
-  //        go(c.tail, c.head :: acc)
-  //      case _ => acc
-  //    }
-  //    go(this, List()).reverse
-  //  }
+  def toList1: List[A] = {
+    @annotation.tailrec
+    def go(s: Stream[A], acc: List[A]): List[A] = s.uncons match {
+      case Some((a, sa)) =>
+        go(sa, a :: acc)
+      case _ => acc.reverse
+    }
+    go(this, List())
+  }
 
   def take(n: Int): Stream[A] = if (n == 0) empty else {
     uncons.fold[Stream[A]](empty) {
@@ -41,6 +41,8 @@ trait Stream[+A] {
 
   def forAll(p: A => Boolean): Boolean = foldRight(true)((a, b) => p(a) && b)
 
+  def takeWhileWithFoldRight(p: A => Boolean): Stream[A] =
+    foldRight(empty: Stream[A])((a, b) => if (p(a)) cons(a, b) else empty)
   def map[B](f: A => B): Stream[B] =
     foldRight[Stream[B]](empty)((a, bf) => cons(f(a), bf))
 
