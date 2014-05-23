@@ -27,12 +27,8 @@ object day5 extends App {
   }
   fibs1.take(10).toList.foreach(x => print(s"$x "))
   println
-  val negInf = inf.mapWithUnfold(x => -x)
+  val negInf = inf.map(x => -x)
   negInf.take(10).toList.foreach(x => print(s"$x "));
-  println
-  negInf.takeWithUnfold(10).toList.foreach(x => print(s"$x "));
-  println
-  inf.zip(negInf).takeWithUnfold(10).toList.foreach(x => print(s"$x "));
   println
   inf.take(20).zipAll(negInf.take(10)).toList.foreach(x => print(s"$x "));
   println

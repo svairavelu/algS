@@ -1,11 +1,11 @@
 name := "ALG-S"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.0"
 
-val scalazVersion = "7.0.5"
+val scalazVersion = "7.1.0-M7"
 
 libraryDependencies ++= Seq(
-	"org.scalatest" %% "scalatest" % "1.9.2-SNAP2" % "test",
+	"org.scalatest" %% "scalatest" % "2.1.6" % "test",
 	"com.novocode" % "junit-interface" % "0.9" % "test",
 	"org.scalaz" %% "scalaz-core" % scalazVersion,
 	"org.scalaz" %% "scalaz-effect" % scalazVersion,

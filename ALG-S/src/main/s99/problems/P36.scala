@@ -7,11 +7,11 @@ package problems
  * @author Blues
  *
  */
-
+import scala.language.implicitConversions
 // But we can do it directly.
 class P36(val start: Int) {
   import P31._
-
+  import scala.language.postfixOps
   def primeFactorMultiplicity: Map[Int, Int] = {
     def factorCount(n: Int, p: Int): (Int, Int) =
       if (n % p != 0) (0, n)
@@ -29,7 +29,7 @@ class P36(val start: Int) {
 
   // This also lets us change primeFactors.
   def primeFactors: List[Int] =
-    primeFactorMultiplicity flatMap { v => List.make(v._2, v._1) } toList
+    primeFactorMultiplicity flatMap { v => List(v._2, v._1) } toList
 }
 
 object P36 {

@@ -14,7 +14,7 @@ object CombinationSumS extends App {
       }
     }
 
-    f(target, Nil).removeDuplicates
+    f(target, Nil).distinct
   }
 
   combinationSum(Array(2, 3, 6, 7), 7) foreach println

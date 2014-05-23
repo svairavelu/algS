@@ -137,7 +137,7 @@ class Graph[T, U] extends GraphBase[T, U] {
           ge :: treeEdges)
       }
     }
-    spanningTreesR(edges, nodes.values.toList.tail, Nil).removeDuplicates
+    spanningTreesR(edges, nodes.values.toList.tail, Nil).distinct
   }
 
   def minimalSpanningTree(implicit f: (U) => Ordered[U]): Graph[T, U] = {
@@ -195,7 +195,7 @@ abstract class GraphObjBase {
     assert(s(0) == '[')
     assert(s(s.length - 1) == ']')
     val tokens = s.substring(1, s.length - 1).split(", *").toList
-    val nodes = tokens.flatMap(_.replaceAll(labelSep + ".*", "").split(edgeSep)).removeDuplicates
+    val nodes = tokens.flatMap(_.replaceAll(labelSep + ".*", "").split(edgeSep)).distinct
     val edges = tokens.filter(_.matches(".*" + edgeSep + ".*")).map(parseEdge)
     mkGraph(nodes, edges)
   }
